@@ -1,5 +1,5 @@
 import { demoBackend } from './demoBackend'
-import { ensureSession, isSupabaseConfigured, supabase } from './supabase'
+import { ensureSession, isSupabaseConfigured, supabase, supabaseHost, supabaseUrlError } from './supabase'
 
 const COLUMNS = 'slot_index, owner_name, owner_id, claimed_at'
 const PROFILE_COLUMNS = 'id, display_name, hue, updated_at'
@@ -107,6 +107,47 @@ const supabaseBackend = {
   },
 }
 
-export const isDemo = !isSupabaseConfigured || import.meta.env.VITE_DEMO === 'true'
+const demoRequested = import.meta.env.VITE_DEMO === 'true'
 
-export const backend = isDemo ? demoBackend : supabaseBackend
+export const configurationError = (() => {
+  if (demoRequested) return null
+  if (supabaseUrlError) return supabaseUrlError
+  if (!isSupabaseConfigured) {
+    return new Error(
+      'VITE_SUPABASE_URL ve VITE_SUPABASE_ANON_KEY derleme sırasında yok. GitHub Pages yerel .env dosyasını okumaz; bu değerler Actions secret olarak verilmelidir.',
+    )
+  }
+  return null
+})()
+
+if (demoRequested) {
+  console.warn('[supabase] VITE_DEMO=true. Gerçek veritabanı kullanılmıyor.')
+} else if (configurationError) {
+  console.error('[supabase]', configurationError.message)
+} else {
+  console.info('[supabase] bağlanılıyor:', supabaseHost)
+}
+
+function unavailableBackend(error) {
+  const fail = (method) => async () => {
+    console.error(`[supabase] ${method} atlandı:`, error.message)
+    throw error
+  }
+  return {
+    ensureSession: fail('ensureSession'),
+    list: fail('list'),
+    listProfiles: fail('listProfiles'),
+    saveProfile: fail('saveProfile'),
+    claim: fail('claim'),
+    release: fail('release'),
+    releaseAll: fail('releaseAll'),
+    subscribe() {
+      console.error('[supabase] subscribe atlandı:', error.message)
+      throw error
+    },
+  }
+}
+
+export const isDemo = demoRequested
+
+export const backend = configurationError ? unavailableBackend(configurationError) : isDemo ? demoBackend : supabaseBackend

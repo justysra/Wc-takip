@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { backend } from '../lib/backend'
+import { backend, configurationError } from '../lib/backend'
 import { isClaimed } from '../lib/slots'
 
 export function useSlots() {
@@ -54,6 +54,15 @@ export function useSlots() {
     let active = true
     let unsubscribe = null
 
+    if (configurationError) {
+      console.error('[supabase] yapılandırma hatası', configurationError)
+      setError(configurationError)
+      setStatus('error')
+      return () => {
+        active = false
+      }
+    }
+
     backend
       .ensureSession()
       .then(async (user) => {
@@ -74,6 +83,7 @@ export function useSlots() {
       })
       .catch((err) => {
         if (!active) return
+        console.error('[supabase] veritabanı bağlantısı kurulamadı', err)
         setError(err)
         setStatus('error')
       })

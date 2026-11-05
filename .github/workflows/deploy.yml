@@ -38,7 +38,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$VITE_SUPABASE_URL" ] || [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
+            echo "::error::VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be repository secrets. GitHub Pages cannot read a local .env file, and the app will not fall back to demo mode."
+            exit 1
+          fi
+          case "$VITE_SUPABASE_URL" in
+            https://*) ;;
+            *)
+              echo "::error::VITE_SUPABASE_URL must be an absolute https URL such as https://<project>.supabase.co"
+              exit 1
+              ;;
+          esac
+          case "$VITE_SUPABASE_URL" in
+            https://*.github.io*|https://github.io*)
+              echo "::error::VITE_SUPABASE_URL points at GitHub Pages, not Supabase."
+              exit 1
+              ;;
+          esac
+          npm run build
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
       - name: Upload artifact

@@ -10,7 +10,10 @@ export default function SetupNotice({ error }) {
         )}
         <ol className="list-decimal space-y-1.5 pl-5 marker:text-slate-400">
           <li>
-            <code className="text-slate-800">.env</code> dosyasında URL ve anahtarın doğru olduğundan emin olun.
+            Yerelde <code className="text-slate-800">.env</code>, GitHub Pages derlemesinde ise{' '}
+            <code className="text-slate-800">VITE_SUPABASE_URL</code> ve{' '}
+            <code className="text-slate-800">VITE_SUPABASE_ANON_KEY</code> secret’ları tanımlı olmalı. Adres{' '}
+            <code className="text-slate-800">https://&lt;proje&gt;.supabase.co</code> biçiminde kalmalı.
           </li>
           <li>
             Supabase SQL Editor'da <code className="text-slate-800">supabase/schema.sql</code> dosyasını çalıştırın.
