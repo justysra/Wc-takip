@@ -1,5 +1,6 @@
-export const SLOT_MINUTES = 20
-export const TOTAL_SLOTS = (24 * 60) / SLOT_MINUTES
+export const SLOT_MINUTES = 5
+export const SLOTS_PER_HOUR = 60 / SLOT_MINUTES
+export const TOTAL_SLOTS = 24 * SLOTS_PER_HOUR
 
 const pad = (n) => String(n).padStart(2, '0')
 
@@ -26,7 +27,7 @@ export function currentSlotIndex(date = new Date()) {
 
 export const HOURS = Array.from({ length: 24 }, (_, hour) => ({
   hour,
-  slots: Array.from({ length: 60 / SLOT_MINUTES }, (_, i) => hour * (60 / SLOT_MINUTES) + i),
+  slots: Array.from({ length: SLOTS_PER_HOUR }, (_, i) => hour * SLOTS_PER_HOUR + i),
 }))
 
 function hashString(value) {

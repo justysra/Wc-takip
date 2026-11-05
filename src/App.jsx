@@ -17,6 +17,7 @@ import {
   initials,
   ownerPalette,
   slotEnd,
+  SLOTS_PER_HOUR,
   slotStart,
   TOTAL_SLOTS,
 } from './lib/slots'
@@ -30,7 +31,7 @@ const FILTERS = [
 ]
 
 function Backdrop({ children }) {
-  return <div className="relative min-h-svh overflow-x-clip bg-zinc-50">{children}</div>
+  return <div className="relative min-h-svh overflow-x-clip bg-slate-50">{children}</div>
 }
 
 export default function App() {
@@ -43,7 +44,7 @@ export default function App() {
 
 function StatusPill({ status }) {
   const map = {
-    live: { label: 'Canlı', cls: 'bg-emerald-100 text-emerald-800' },
+    live: { label: 'Canlı', cls: 'bg-teal-100 text-teal-800' },
     offline: { label: 'Bağlantı koptu', cls: 'bg-rose-100 text-rose-800' },
     connecting: { label: 'Bağlanıyor', cls: 'bg-slate-100 text-slate-600' },
   }
@@ -55,7 +56,7 @@ function StatusPill({ status }) {
 
 function Stat({ label, value, accent }) {
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
       <p className="text-[11.5px] font-medium text-slate-500">{label}</p>
       <p className={`mt-1 font-mono text-[22px] font-semibold tracking-tight tabular-nums ${accent ?? 'text-slate-900'}`}>
         {value}
@@ -258,7 +259,7 @@ function Board() {
               </div>
               <span className="truncate text-[14px] font-semibold tracking-tight text-slate-900">Tuvalet Blokları</span>
               <span className="hidden text-slate-300 sm:inline">/</span>
-              <span className="hidden text-[13px] text-slate-500 sm:inline">24 saat · 72 slot</span>
+              <span className="hidden text-[13px] text-slate-500 sm:inline">24 saat · 5 dk</span>
               {isDemo && (
                 <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-medium text-slate-600">
                   Demo
@@ -298,13 +299,13 @@ function Board() {
       <main className="mx-auto max-w-6xl px-4 pt-10 pb-28 sm:px-6 sm:pt-14">
         <section className="animate-fade-up">
           <h1 className="text-[34px] leading-[1.05] font-semibold tracking-[-0.035em] text-slate-900 sm:text-[52px]">
-            24 saat, 72 blok.
+            24 saat, 5 dakikalık bloklar.
             <br />
-            <span className="text-slate-400">Hep birlikte dolduruyoruz.</span>
+            <span className="font-semibold text-slate-400">Hep birlikte dolduruyoruz.</span>
           </h1>
-          <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-slate-500">
-            Her kart 20 dakikalık bir dilim. Boş bir karta dokun, o saat sana kilitlensin. Kilitlediğin kartı yalnızca sen
-            geri bırakabilirsin.
+          <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-slate-500">
+            Her kart 5 dakikalık bir dilim: 12:00, 12:05, 12:10. Boş bir karta dokun, o aralık sana kilitlensin.
+            Kilitlediğin kartı yalnızca sen geri bırakabilirsin.
           </p>
         </section>
 
@@ -322,9 +323,9 @@ function Board() {
           <Stat label="Katılımcı" value={contributors.length} />
         </section>
 
-        <section className="animate-fade-up mt-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm [animation-delay:140ms]">
+        <section className="animate-fade-up mt-4 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm [animation-delay:140ms]">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[12.5px] font-medium text-slate-700">Katkıda bulunanlar</h2>
+            <h2 className="text-[15px] font-semibold tracking-tight text-slate-900">Katkıda bulunanlar</h2>
             {focusedId && (
               <button
                 onClick={() => setFocusedId(null)}
@@ -359,47 +360,53 @@ function Board() {
           </div>
 
           {!ready ? (
-            <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
-              {HOURS.map(({ hour }) => (
-                <div key={hour}>
-                  <div className="mb-2 h-3 w-10 rounded bg-slate-200" />
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[0, 1, 2].map((i) => (
-                      <div key={i} className="h-[88px] animate-pulse rounded-2xl border border-slate-200/80 bg-white shadow-sm" />
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+              {HOURS.slice(0, 4).map(({ hour }) => (
+                <div key={hour} className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
+                  <div className="mb-4 h-3 w-16 rounded bg-slate-200" />
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
+                    {Array.from({ length: SLOTS_PER_HOUR }, (_, i) => (
+                      <div key={i} className="h-[76px] animate-pulse rounded-xl border border-slate-200/80 bg-slate-50" />
                     ))}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
               {HOURS.map(({ hour, slots: indices }) => {
                 const filledInHour = indices.filter((i) => slots.has(i)).length
                 const label = `${String(hour).padStart(2, '0')}:00`
+                const isCurrentHour = hour === Math.floor(nowIndex / SLOTS_PER_HOUR)
                 return (
-                  <div key={hour}>
-                    <div className="mb-2 flex items-center gap-2 px-0.5">
+                  <section
+                    key={hour}
+                    className={`rounded-2xl border bg-white p-6 shadow-sm ${
+                      isCurrentHour ? 'border-indigo-200 shadow-md' : 'border-slate-200/80'
+                    }`}
+                  >
+                    <div className="mb-4 flex items-center gap-2">
                       <span
-                        className={`font-mono text-[11px] font-medium tabular-nums ${
-                          hour === Math.floor(nowIndex / 3) ? 'text-slate-900' : 'text-slate-500'
+                        className={`font-mono text-[13px] font-semibold tabular-nums ${
+                          isCurrentHour ? 'text-indigo-700' : 'text-slate-700'
                         }`}
                       >
                         {label}
                       </span>
                       <span className="h-px flex-1 bg-slate-200" />
                       <span
-                        className={`rounded-full px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums ${
-                          filledInHour === 3
+                        className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-medium tabular-nums ${
+                          filledInHour === SLOTS_PER_HOUR
                             ? 'bg-rose-100 text-rose-800'
                             : filledInHour === 0
                               ? 'bg-emerald-100 text-emerald-800'
                               : 'bg-slate-100 text-slate-600'
                         }`}
                       >
-                        {filledInHour}/3
+                        {filledInHour}/{SLOTS_PER_HOUR}
                       </span>
                     </div>
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
                       {indices.map((i) => {
                         const row = slots.get(i)
                         const owner = row ? ownerOf(row.owner_id, row.owner_name) : null
@@ -421,7 +428,7 @@ function Board() {
                         )
                       })}
                     </div>
-                  </div>
+                  </section>
                 )
               })}
             </div>

@@ -6,6 +6,8 @@ import { TOTAL_SLOTS } from './slots'
 const STORE_KEY = 'tuvalet-takip:demo-slots'
 const PROFILE_KEY = 'tuvalet-takip:demo-profiles'
 const USER_KEY = 'tuvalet-takip:demo-user'
+const VERSION_KEY = 'tuvalet-takip:demo-version'
+const DATA_VERSION = '5min-empty'
 const LATENCY_MS = 250
 
 const FAKE_USERS = [
@@ -16,11 +18,6 @@ const FAKE_USERS = [
   { id: 'demo-elif', name: 'Elif Su' },
 ]
 
-const SEED = [
-  [0, 0], [1, 0], [7, 1], [8, 1], [9, 1], [21, 2], [22, 2],
-  [30, 3], [36, 4], [37, 4], [45, 0], [52, 2], [60, 1], [66, 3], [71, 4],
-]
-
 const listeners = new Set()
 const wait = () => new Promise((r) => setTimeout(r, LATENCY_MS))
 
@@ -28,20 +25,23 @@ function makeRow(index, user) {
   return { slot_index: index, owner_name: user.name, owner_id: user.id, claimed_at: new Date().toISOString() }
 }
 
-function seedRows() {
-  return Object.fromEntries(SEED.map(([index, u]) => [index, makeRow(index, FAKE_USERS[u])]))
+/** Eski tohumlanmış demo kayıtlarını bir kez siler. Tablo boş başlar. */
+export function clearLegacyDemoStorage() {
+  if (localStorage.getItem(VERSION_KEY) === DATA_VERSION) return
+  localStorage.removeItem(STORE_KEY)
+  localStorage.removeItem(PROFILE_KEY)
+  localStorage.setItem(VERSION_KEY, DATA_VERSION)
 }
 
 function read() {
+  clearLegacyDemoStorage()
   try {
     const parsed = JSON.parse(localStorage.getItem(STORE_KEY) ?? 'null')
-    if (parsed && typeof parsed === 'object') return parsed
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed
   } catch {
-    // Bozuk kayıt: aşağıda yeniden tohumlanır.
+    // Bozuk kayıt boş tablo sayılır.
   }
-  const rows = seedRows()
-  localStorage.setItem(STORE_KEY, JSON.stringify(rows))
-  return rows
+  return {}
 }
 
 function write(rows) {
@@ -140,7 +140,7 @@ export const demoBackend = {
 }
 
 export function resetDemo() {
-  write(seedRows())
+  write({})
 }
 
 export function fillDemoRandomly() {

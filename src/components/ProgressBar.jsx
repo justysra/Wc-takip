@@ -26,7 +26,7 @@ export default function ProgressBar({ filled }) {
         aria-label={`${TOTAL_SLOTS} slotun ${withPossessive(filled)} kilitlendi`}
       >
         <div
-          className="h-full rounded-full bg-slate-800 transition-[width] duration-700 ease-out"
+          className="h-full rounded-full bg-indigo-500 transition-[width] duration-700 ease-out"
           style={{ width: `${ratio * 100}%` }}
         />
       </div>

@@ -15,7 +15,7 @@ export default function SlotCard({
   onClick,
 }) {
   let cls =
-    'group relative flex h-[88px] w-full flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-2.5 py-2 text-left shadow-sm outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-slate-300 active:scale-[0.98] disabled:cursor-wait'
+    'group relative flex h-[76px] w-full flex-col justify-between overflow-hidden rounded-xl border border-slate-200/80 bg-white px-2.5 py-2 text-left shadow-sm outline-none transition-all duration-200 ease-out focus-visible:ring-2 focus-visible:ring-indigo-300 active:scale-[0.98] disabled:cursor-wait'
 
   if (!row) {
     cls += ' hover:border-emerald-200 hover:bg-emerald-50/60'
@@ -40,7 +40,7 @@ export default function SlotCard({
           {slotStart(index)}
         </span>
         {isNow && (
-          <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[9.5px] font-medium tracking-wide text-slate-600 uppercase">
+          <span className="rounded-full bg-indigo-100 px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide text-indigo-800 uppercase">
             Şimdi
           </span>
         )}

@@ -1,9 +1,9 @@
--- 24 Saat / 20 Dakikalık Kalıcı Tuvalet Blokları
+-- 24 Saat / 5 Dakikalık Kalıcı Tuvalet Blokları (288 slot)
 -- Supabase Dashboard > SQL Editor içinde bir kez çalıştırın.
 -- Ayrıca: Authentication > Sign In / Providers > "Allow anonymous sign-ins" açık olmalı.
 
 create table if not exists public.slots (
-  slot_index  smallint primary key check (slot_index between 0 and 71),
+  slot_index  smallint primary key check (slot_index between 0 and 287),
   owner_name  text not null check (char_length(btrim(owner_name)) between 1 and 24),
   owner_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
   claimed_at  timestamptz not null default now()
@@ -57,6 +57,10 @@ create policy "profiles kendini gunceller"
   to authenticated
   using (id = auth.uid())
   with check (id = auth.uid());
+
+-- Var olan kurulumlarda 20 dakikalık (0–71) kısıtı 5 dakikalık 288 slota genişletilir.
+alter table public.slots drop constraint if exists slots_slot_index_check;
+alter table public.slots add constraint slots_slot_index_check check (slot_index between 0 and 287);
 
 do $$
 declare
