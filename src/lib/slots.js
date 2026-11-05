@@ -58,19 +58,19 @@ export function defaultHue(key) {
   return hashString(key) % 360
 }
 
-/** Kimliğe (veya seçilmiş tona) göre neon tonlu bir renk paleti üretir. */
+/** Kimliğe (veya seçilmiş tona) göre açık zeminde okunan yumuşak bir palet üretir. */
 export function ownerPalette(key, preferredHue) {
   const hue = Number.isFinite(preferredHue) ? preferredHue : defaultHue(key)
   return {
     hue,
-    text: `hsl(${hue} 90% 78%)`,
-    solid: `hsl(${hue} 85% 62%)`,
-    tint: `hsl(${hue} 85% 60% / 0.07)`,
-    soft: `hsl(${hue} 85% 60% / 0.14)`,
-    border: `hsl(${hue} 85% 65% / 0.28)`,
-    ring: `hsl(${hue} 85% 65% / 0.45)`,
-    glow: `0 0 0 1px hsl(${hue} 85% 65% / 0.06), 0 8px 28px -10px hsl(${hue} 90% 60% / 0.55)`,
-    dotGlow: `0 0 10px hsl(${hue} 90% 60% / 0.8)`,
+    text: `hsl(${hue} 32% 28%)`,
+    solid: `hsl(${hue} 42% 46%)`,
+    tint: `hsl(${hue} 45% 97%)`,
+    soft: `hsl(${hue} 40% 94%)`,
+    border: `hsl(${hue} 24% 84%)`,
+    ring: `hsl(${hue} 28% 62%)`,
+    glow: '0 1px 2px rgb(15 23 42 / 0.05)',
+    dotGlow: 'none',
   }
 }
 

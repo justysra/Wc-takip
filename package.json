@@ -2,7 +2,7 @@
   "name": "tuvalet-takip",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://justysra.github.io/wc-takip",
+  "homepage": "https://justysra.github.io/Wc-takip",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -6,11 +6,6 @@
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, 'Cascadia Code', monospace;
 
-  --color-ink-950: #09090b;
-  --color-ink-900: #0c0c0f;
-  --color-ink-850: #111114;
-  --color-ink-800: #18181b;
-
   --animate-shimmer: shimmer 2.2s linear infinite;
   --animate-toast-in: toast-in 0.32s cubic-bezier(0.21, 1.02, 0.73, 1);
   --animate-toast-out: toast-out 0.2s ease-in forwards;
@@ -86,16 +81,16 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-ink-950 font-sans text-zinc-100 antialiased;
+  @apply bg-zinc-50 font-sans text-slate-800 antialiased;
   font-feature-settings: 'ss01', 'cv11';
 }
 
 ::selection {
-  @apply bg-indigo-500/30 text-white;
+  @apply bg-emerald-100 text-emerald-900;
 }
 
 button:not(:disabled) {
@@ -123,8 +118,8 @@ button:not(:disabled) {
   height: 16px;
   border-radius: 9999px;
   background: #fff;
-  border: 2px solid rgba(0, 0, 0, 0.5);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3), 0 2px 8px rgba(0, 0, 0, 0.6);
+  border: 2px solid rgb(226 232 240);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
   transition: transform 0.15s;
 }
 .hue-slider::-webkit-slider-thumb:hover {
@@ -135,7 +130,7 @@ button:not(:disabled) {
   height: 14px;
   border-radius: 9999px;
   background: #fff;
-  border: 2px solid rgba(0, 0, 0, 0.5);
+  border: 2px solid rgb(226 232 240);
 }
 
 @media (prefers-reduced-motion: reduce) {

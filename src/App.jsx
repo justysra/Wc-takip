@@ -30,17 +30,7 @@ const FILTERS = [
 ]
 
 function Backdrop({ children }) {
-  return (
-    <div className="relative min-h-svh overflow-x-clip">
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 bg-ink-950">
-        <div className="absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(ellipse_60%_60%_at_50%_-10%,rgba(99,102,241,0.22),transparent_70%)]" />
-        <div className="absolute top-[-120px] left-[15%] size-[420px] rounded-full bg-purple-600/10 blur-[110px]" />
-        <div className="absolute top-[30%] right-[-120px] size-[380px] rounded-full bg-pink-600/[0.07] blur-[120px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_0%,black,transparent)]" />
-      </div>
-      {children}
-    </div>
-  )
+  return <div className="relative min-h-svh overflow-x-clip bg-zinc-50">{children}</div>
 }
 
 export default function App() {
@@ -53,27 +43,23 @@ export default function App() {
 
 function StatusPill({ status }) {
   const map = {
-    live: { dot: 'bg-emerald-400', ping: true, label: 'Canlı', text: 'text-zinc-300' },
-    offline: { dot: 'bg-amber-400', ping: false, label: 'Bağlantı koptu', text: 'text-amber-300' },
-    connecting: { dot: 'bg-zinc-500', ping: true, label: 'Bağlanıyor', text: 'text-zinc-400' },
+    live: { label: 'Canlı', cls: 'bg-emerald-100 text-emerald-800' },
+    offline: { label: 'Bağlantı koptu', cls: 'bg-rose-100 text-rose-800' },
+    connecting: { label: 'Bağlanıyor', cls: 'bg-slate-100 text-slate-600' },
   }
   const s = map[status] ?? map.connecting
   return (
-    <span className={`flex h-7 items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 text-[12px] font-medium ${s.text}`}>
-      <span className="relative flex size-1.5">
-        {s.ping && <span className={`absolute inline-flex size-full animate-ping rounded-full opacity-70 ${s.dot}`} />}
-        <span className={`relative inline-flex size-1.5 rounded-full ${s.dot}`} />
-      </span>
-      {s.label}
-    </span>
+    <span className={`flex h-7 items-center rounded-full px-2.5 text-[12px] font-medium ${s.cls}`}>{s.label}</span>
   )
 }
 
 function Stat({ label, value, accent }) {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
-      <p className="text-[11.5px] font-medium text-zinc-500">{label}</p>
-      <p className={`mt-1 font-mono text-[22px] font-semibold tracking-tight tabular-nums ${accent ?? 'text-zinc-100'}`}>{value}</p>
+    <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-3 shadow-sm">
+      <p className="text-[11.5px] font-medium text-slate-500">{label}</p>
+      <p className={`mt-1 font-mono text-[22px] font-semibold tracking-tight tabular-nums ${accent ?? 'text-slate-900'}`}>
+        {value}
+      </p>
     </div>
   )
 }
@@ -81,10 +67,10 @@ function Stat({ label, value, accent }) {
 function FilterTabs({ value, onChange }) {
   const activeIndex = FILTERS.findIndex((f) => f.id === value)
   return (
-    <div className="relative grid grid-cols-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-0.5">
+    <div className="relative grid grid-cols-3 rounded-xl border border-slate-200/80 bg-slate-100/80 p-0.5 shadow-sm">
       <span
         aria-hidden
-        className="absolute inset-y-0.5 left-0.5 w-[calc((100%-4px)/3)] rounded-md border border-white/[0.08] bg-white/[0.07] shadow-[0_1px_2px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+        className="absolute inset-y-0.5 left-0.5 w-[calc((100%-4px)/3)] rounded-lg border border-slate-200/80 bg-white shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
         style={{ transform: `translateX(${activeIndex * 100}%)` }}
       />
       {FILTERS.map((f) => (
@@ -92,7 +78,7 @@ function FilterTabs({ value, onChange }) {
           key={f.id}
           onClick={() => onChange(f.id)}
           className={`relative z-10 h-7 px-3 text-[12px] font-medium transition-colors duration-200 ${
-            value === f.id ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'
+            value === f.id ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'
           }`}
         >
           {f.label}
@@ -106,7 +92,7 @@ function GhostButton({ icon: Icon, children, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="flex h-7 items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.02] px-2.5 text-[12px] font-medium text-zinc-400 transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.05] hover:text-zinc-100 active:scale-95"
+      className="flex h-7 items-center gap-1.5 rounded-xl border border-slate-200/80 bg-white px-2.5 text-[12px] font-medium text-slate-600 shadow-sm transition-all duration-200 hover:bg-slate-50 hover:text-slate-900 active:scale-95"
     >
       <Icon size={13} /> {children}
     </button>
@@ -263,18 +249,18 @@ function Board() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-black/40 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-md">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <div className="flex h-14 items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
-              <div className="grid size-7 shrink-0 place-items-center rounded-lg border border-white/10 bg-gradient-to-b from-white/[0.12] to-white/[0.02] shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-                <Toilet size={14} className="text-zinc-100" />
+              <div className="grid size-7 shrink-0 place-items-center rounded-xl border border-slate-200/80 bg-white shadow-sm">
+                <Toilet size={14} className="text-slate-700" />
               </div>
-              <span className="truncate text-[14px] font-semibold tracking-tight text-zinc-100">Tuvalet Blokları</span>
-              <span className="hidden text-zinc-700 sm:inline">/</span>
-              <span className="hidden text-[13px] text-zinc-500 sm:inline">24 saat · 72 slot</span>
+              <span className="truncate text-[14px] font-semibold tracking-tight text-slate-900">Tuvalet Blokları</span>
+              <span className="hidden text-slate-300 sm:inline">/</span>
+              <span className="hidden text-[13px] text-slate-500 sm:inline">24 saat · 72 slot</span>
               {isDemo && (
-                <span className="rounded-md border border-purple-400/25 bg-purple-500/10 px-1.5 py-0.5 text-[10.5px] font-medium text-purple-300">
+                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10.5px] font-medium text-slate-600">
                   Demo
                 </span>
               )}
@@ -285,19 +271,19 @@ function Board() {
               {username && myPalette && (
                 <button
                   onClick={() => setSettingsOpen(true)}
-                  className="group flex h-7 items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] pr-2.5 pl-0.5 text-[12.5px] font-medium text-zinc-200 transition-all duration-200 hover:border-white/[0.16] hover:bg-white/[0.06] active:scale-95"
+                  className="group flex h-7 items-center gap-2 rounded-full border border-slate-200/80 bg-white pr-2.5 pl-0.5 text-[12.5px] font-medium text-slate-700 shadow-sm transition-all duration-200 hover:bg-slate-50 active:scale-95"
                   title="Hesap ayarları"
                 >
                   <span
-                    className="grid size-6 place-items-center rounded-full text-[9.5px] font-bold text-black/80"
-                    style={{ backgroundColor: myPalette.solid, boxShadow: myPalette.dotGlow }}
+                    className="grid size-6 place-items-center rounded-full text-[9.5px] font-semibold text-white"
+                    style={{ backgroundColor: myPalette.solid }}
                   >
                     {initials(username)}
                   </span>
                   <span className="hidden max-w-[8rem] truncate sm:inline">{username}</span>
                   <Settings
                     size={12}
-                    className="text-zinc-500 transition-all duration-300 group-hover:rotate-90 group-hover:text-zinc-200"
+                    className="text-slate-400 transition-all duration-300 group-hover:rotate-90 group-hover:text-slate-700"
                   />
                 </button>
               )}
@@ -311,40 +297,38 @@ function Board() {
 
       <main className="mx-auto max-w-6xl px-4 pt-10 pb-28 sm:px-6 sm:pt-14">
         <section className="animate-fade-up">
-          <h1 className="text-[34px] leading-[1.05] font-semibold tracking-[-0.035em] sm:text-[52px]">
-            <span className="bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">24 saat, 72 blok.</span>
+          <h1 className="text-[34px] leading-[1.05] font-semibold tracking-[-0.035em] text-slate-900 sm:text-[52px]">
+            24 saat, 72 blok.
             <br />
-            <span className="bg-gradient-to-b from-zinc-500 to-zinc-700 bg-clip-text text-transparent">
-              Hep birlikte dolduruyoruz.
-            </span>
+            <span className="text-slate-400">Hep birlikte dolduruyoruz.</span>
           </h1>
-          <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-zinc-400">
+          <p className="mt-4 max-w-xl text-[14.5px] leading-relaxed text-slate-500">
             Her kart 20 dakikalık bir dilim. Boş bir karta dokun, o saat sana kilitlensin. Kilitlediğin kartı yalnızca sen
             geri bırakabilirsin.
           </p>
         </section>
 
         {filled === TOTAL_SLOTS && (
-          <div className="animate-fade-up mt-8 flex items-center gap-3 rounded-xl border border-purple-400/20 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 px-4 py-3 text-[13.5px] text-zinc-200 shadow-[0_8px_40px_-12px_rgba(168,85,247,0.6)]">
-            <PartyPopper size={16} className="shrink-0 text-pink-300" />
+          <div className="animate-fade-up mt-8 flex items-center gap-3 rounded-2xl border border-emerald-200/80 bg-emerald-100 px-4 py-3 text-[13.5px] text-emerald-800 shadow-sm">
+            <PartyPopper size={16} className="shrink-0" />
             Tablo tamamlandı. 24 saatin tamamı imece usulü kilitlendi.
           </div>
         )}
 
         <section className="animate-fade-up mt-10 grid grid-cols-2 gap-2 [animation-delay:80ms] sm:grid-cols-4 sm:gap-3">
-          <Stat label="Kilitli" value={filled} />
-          <Stat label="Boş" value={TOTAL_SLOTS - filled} />
-          <Stat label="Senin" value={mineCount} accent="text-purple-300" />
+          <Stat label="Kilitli" value={filled} accent="text-rose-800" />
+          <Stat label="Boş" value={TOTAL_SLOTS - filled} accent="text-emerald-800" />
+          <Stat label="Senin" value={mineCount} />
           <Stat label="Katılımcı" value={contributors.length} />
         </section>
 
-        <section className="animate-fade-up mt-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 [animation-delay:140ms]">
+        <section className="animate-fade-up mt-3 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm [animation-delay:140ms]">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-[12.5px] font-medium text-zinc-300">Katkıda bulunanlar</h2>
+            <h2 className="text-[12.5px] font-medium text-slate-700">Katkıda bulunanlar</h2>
             {focusedId && (
               <button
                 onClick={() => setFocusedId(null)}
-                className="text-[12px] text-zinc-500 transition-colors hover:text-zinc-200"
+                className="text-[12px] text-slate-500 transition-colors hover:text-slate-800"
               >
                 Filtreyi temizle
               </button>
@@ -356,8 +340,8 @@ function Board() {
         <section className="animate-fade-up mt-12 [animation-delay:200ms]">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-baseline gap-2">
-              <h2 className="text-[15px] font-semibold tracking-tight text-zinc-100">Zaman çizelgesi</h2>
-              <span className="font-mono text-[12px] text-zinc-600 tabular-nums">00:00 – 24:00</span>
+              <h2 className="text-[15px] font-semibold tracking-tight text-slate-900">Zaman çizelgesi</h2>
+              <span className="font-mono text-[12px] text-slate-400 tabular-nums">00:00 – 24:00</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {isDemo && (
@@ -378,10 +362,10 @@ function Board() {
             <div className="grid grid-cols-1 gap-x-5 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
               {HOURS.map(({ hour }) => (
                 <div key={hour}>
-                  <div className="mb-2 h-3 w-10 rounded bg-white/[0.04]" />
+                  <div className="mb-2 h-3 w-10 rounded bg-slate-200" />
                   <div className="grid grid-cols-3 gap-1.5">
                     {[0, 1, 2].map((i) => (
-                      <div key={i} className="h-[74px] animate-pulse rounded-lg border border-white/[0.04] bg-white/[0.02]" />
+                      <div key={i} className="h-[88px] animate-pulse rounded-2xl border border-slate-200/80 bg-white shadow-sm" />
                     ))}
                   </div>
                 </div>
@@ -397,15 +381,19 @@ function Board() {
                     <div className="mb-2 flex items-center gap-2 px-0.5">
                       <span
                         className={`font-mono text-[11px] font-medium tabular-nums ${
-                          hour === Math.floor(nowIndex / 3) ? 'text-amber-300' : 'text-zinc-500'
+                          hour === Math.floor(nowIndex / 3) ? 'text-slate-900' : 'text-slate-500'
                         }`}
                       >
                         {label}
                       </span>
-                      <span className="h-px flex-1 bg-gradient-to-r from-white/[0.08] to-transparent" />
+                      <span className="h-px flex-1 bg-slate-200" />
                       <span
-                        className={`font-mono text-[10.5px] tabular-nums ${
-                          filledInHour === 3 ? 'text-purple-300' : 'text-zinc-600'
+                        className={`rounded-full px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums ${
+                          filledInHour === 3
+                            ? 'bg-rose-100 text-rose-800'
+                            : filledInHour === 0
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-slate-100 text-slate-600'
                         }`}
                       >
                         {filledInHour}/3
@@ -440,7 +428,7 @@ function Board() {
           )}
         </section>
 
-        <footer className="mt-16 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-6 text-[12px] text-zinc-600">
+        <footer className="mt-16 flex flex-wrap items-center justify-between gap-2 border-t border-slate-200 pt-6 text-[12px] text-slate-500">
           <span>Değişiklikler herkesin ekranında anında güncellenir.</span>
           <span className="font-mono tabular-nums">
             {filled}/{TOTAL_SLOTS}

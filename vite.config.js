@@ -4,6 +4,6 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/wc-takip/',
+  base: '/Wc-takip/',
   plugins: [react(), tailwindcss()],
 })
