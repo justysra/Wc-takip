@@ -128,6 +128,16 @@ export function useSlots() {
     [upsertProfile],
   )
 
+  const saveNote = useCallback(
+    async (index, note) => {
+      const result = await backend.updateNote(index, note)
+      if (result.ok && result.row) upsertLocal(result.row)
+      else if (result.reason === 'forbidden') await load().catch(() => {})
+      return result
+    },
+    [load, upsertLocal],
+  )
+
   const releaseAll = useCallback(async () => {
     const result = await backend.releaseAll()
     await load().catch(() => {})
@@ -146,5 +156,6 @@ export function useSlots() {
     release,
     releaseAll,
     saveProfile,
+    saveNote,
   }
 }

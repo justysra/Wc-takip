@@ -6,7 +6,8 @@ create table if not exists public.slots (
   slot_index  smallint primary key check (slot_index between 0 and 287),
   owner_name  text not null check (char_length(btrim(owner_name)) between 1 and 24),
   owner_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
-  claimed_at  timestamptz not null default now()
+  claimed_at  timestamptz not null default now(),
+  note        text check (note is null or char_length(note) <= 140)
 );
 
 alter table public.slots enable row level security;
@@ -28,7 +29,20 @@ create policy "slots sadece sahibi siler"
   to authenticated
   using (owner_id = auth.uid());
 
--- UPDATE politikası bilinçli olarak yok: bir slot el değiştiremez, yalnızca sahibi tarafından bırakılabilir.
+-- Slot el değiştiremez: güncelleme yalnızca not sütununda ve yalnızca sahibine açık.
+alter table public.slots add column if not exists note text;
+alter table public.slots drop constraint if exists slots_note_check;
+alter table public.slots add constraint slots_note_check check (note is null or char_length(note) <= 140);
+
+revoke update on public.slots from anon, authenticated;
+grant update (note) on public.slots to authenticated;
+
+drop policy if exists "slots notunu sahibi gunceller" on public.slots;
+create policy "slots notunu sahibi gunceller"
+  on public.slots for update
+  to authenticated
+  using (owner_id = auth.uid())
+  with check (owner_id = auth.uid());
 
 -- Hesap ayarları: görünen ad ve rozet rengi herkese görünür, yalnızca sahibi değiştirebilir.
 create table if not exists public.profiles (

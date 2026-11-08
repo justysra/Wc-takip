@@ -2,6 +2,7 @@ import { PartyPopper, RotateCcw, Settings, Shuffle, Toilet } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import AccountModal from './components/AccountModal'
 import Contributors from './components/Contributors'
+import NoteModal from './components/NoteModal'
 import ProgressBar from './components/ProgressBar'
 import SetupNotice from './components/SetupNotice'
 import SlotCard from './components/SlotCard'
@@ -44,7 +45,7 @@ export default function App() {
 
 function StatusPill({ status }) {
   const map = {
-    live: { label: 'Canlı', cls: 'bg-teal-100 text-teal-800' },
+    live: { label: 'Canlı', cls: 'bg-emerald-50 text-emerald-800' },
     offline: { label: 'Bağlantı koptu', cls: 'bg-rose-100 text-rose-800' },
     connecting: { label: 'Bağlanıyor', cls: 'bg-slate-100 text-slate-600' },
   }
@@ -108,6 +109,7 @@ function Board() {
   const [shaking, setShaking] = useState(null)
   const [focusedId, setFocusedId] = useState(null)
   const [filter, setFilter] = useState('all')
+  const [noteIndex, setNoteIndex] = useState(null)
   const [nowIndex, setNowIndex] = useState(() => currentSlotIndex())
 
   const {
@@ -122,6 +124,7 @@ function Board() {
     release,
     releaseAll,
     saveProfile,
+    saveNote,
   } = useSlots()
   const { toasts, push, dismiss } = useToasts()
 
@@ -237,6 +240,30 @@ function Board() {
     else push('error', 'İşlem başarısız', result.message)
   }
 
+  function handleSlotLongPress(index) {
+    if (!slots.has(index) || pending.has(index)) return
+    setArmed(null)
+    setNoteIndex(index)
+  }
+
+  async function handleSaveNote(note) {
+    const index = noteIndex
+    setSlotPending(index, true)
+    const result = await saveNote(index, note)
+    setSlotPending(index, false)
+    if (result.ok) {
+      setNoteIndex(null)
+      push('success', note ? 'Not kaydedildi' : 'Not silindi', `${slotStart(index)} – ${slotEnd(index)}`)
+    } else if (result.reason === 'unsupported') {
+      push('warning', 'Notlar henüz açık değil', "Supabase'de supabase/migrate-notes.sql dosyasını çalıştır.")
+    } else if (result.reason === 'forbidden') {
+      setNoteIndex(null)
+      push('warning', 'Yetkin yok', 'Bu slota yalnızca sahibi not yazabilir.')
+    } else {
+      push('error', 'Not kaydedilemedi', result.message)
+    }
+  }
+
   function isDimmed(row) {
     if (focusedId && row?.owner_id !== focusedId) return true
     if (filter === 'empty') return Boolean(row)
@@ -304,8 +331,8 @@ function Board() {
             <span className="font-semibold text-slate-400">Hep birlikte dolduruyoruz.</span>
           </h1>
           <p className="mt-4 max-w-xl text-[15px] leading-relaxed text-slate-500">
-            Her kart 5 dakikalık bir dilim: 12:00, 12:05, 12:10. Boş bir karta dokun, o aralık sana kilitlensin.
-            Kilitlediğin kartı yalnızca sen geri bırakabilirsin.
+            Her kart 5 dakikalık bir dilim: 12:00, 12:05, 12:10. Boş bir karta dokun, o aralık senin renginle
+            kilitlensin. Kilitlediğin kartı yalnızca sen geri bırakabilirsin; basılı tutarak not yazabilirsin.
           </p>
         </section>
 
@@ -317,8 +344,8 @@ function Board() {
         )}
 
         <section className="animate-fade-up mt-10 grid grid-cols-2 gap-2 [animation-delay:80ms] sm:grid-cols-4 sm:gap-3">
-          <Stat label="Kilitli" value={filled} accent="text-rose-800" />
-          <Stat label="Boş" value={TOTAL_SLOTS - filled} accent="text-emerald-800" />
+          <Stat label="Kilitli" value={filled} accent="text-slate-900" />
+          <Stat label="Boş" value={TOTAL_SLOTS - filled} accent="text-slate-500" />
           <Stat label="Senin" value={mineCount} />
           <Stat label="Katılımcı" value={contributors.length} />
         </section>
@@ -381,14 +408,16 @@ function Board() {
                 return (
                   <section
                     key={hour}
-                    className={`rounded-2xl border bg-white p-6 shadow-sm ${
-                      isCurrentHour ? 'border-indigo-200 shadow-md' : 'border-slate-200/80'
+                    className={`rounded-2xl border p-6 ${
+                      isCurrentHour
+                        ? 'border-slate-300 bg-slate-50/70 shadow-sm'
+                        : 'border-slate-200/80 bg-white shadow-sm'
                     }`}
                   >
                     <div className="mb-4 flex items-center gap-2">
                       <span
-                        className={`font-mono text-[13px] font-semibold tabular-nums ${
-                          isCurrentHour ? 'text-indigo-700' : 'text-slate-700'
+                        className={`font-mono text-[13px] font-medium tabular-nums ${
+                          isCurrentHour ? 'text-slate-900' : 'text-slate-600'
                         }`}
                       >
                         {label}
@@ -397,9 +426,9 @@ function Board() {
                       <span
                         className={`rounded-full px-2 py-0.5 font-mono text-[11px] font-medium tabular-nums ${
                           filledInHour === SLOTS_PER_HOUR
-                            ? 'bg-rose-100 text-rose-800'
+                            ? 'bg-slate-900 text-white'
                             : filledInHour === 0
-                              ? 'bg-emerald-100 text-emerald-800'
+                              ? 'bg-slate-100 text-slate-500'
                               : 'bg-slate-100 text-slate-600'
                         }`}
                       >
@@ -424,6 +453,7 @@ function Board() {
                             isDimmed={isDimmed(row)}
                             isShaking={shaking === i}
                             onClick={() => handleSlotClick(i)}
+                            onLongPress={() => handleSlotLongPress(i)}
                           />
                         )
                       })}
@@ -444,6 +474,23 @@ function Board() {
       </main>
 
       <Toasts toasts={toasts} onDismiss={dismiss} />
+
+      {noteIndex !== null && slots.has(noteIndex) && (() => {
+        const row = slots.get(noteIndex)
+        const owner = ownerOf(row.owner_id, row.owner_name)
+        return (
+          <NoteModal
+            key={noteIndex}
+            index={noteIndex}
+            row={row}
+            ownerName={owner.name}
+            palette={owner.palette}
+            isMine={row.owner_id === userId}
+            onSave={handleSaveNote}
+            onClose={() => setNoteIndex(null)}
+          />
+        )
+      })()}
 
       {(!username || settingsOpen) && (
         <AccountModal

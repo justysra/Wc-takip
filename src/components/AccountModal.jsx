@@ -97,19 +97,28 @@ export default function AccountModal({
           </p>
 
           <div className="mt-5 flex items-center gap-3 rounded-2xl border border-slate-200/80 bg-zinc-50 p-3 shadow-sm">
-            <div className="relative flex h-[88px] w-[132px] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-2.5 py-2 shadow-sm">
-              <span className="font-mono text-[12px] font-medium text-slate-700 tabular-nums">08:20</span>
+            <div
+              className="slot-glass relative flex h-[88px] w-[132px] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border px-2.5 py-2 transition-colors duration-300"
+              style={{
+                '--slot-fill': palette.fill,
+                '--slot-deep': palette.fillDeep,
+                '--slot-sheen': palette.sheen,
+                '--slot-border': palette.fillBorder,
+              }}
+            >
+              <span className="font-mono text-[12px] font-medium tabular-nums" style={{ color: palette.text }}>
+                08:20
+              </span>
               <span className="flex min-w-0 items-center gap-1.5">
-                <span className="inline-flex shrink-0 rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-medium text-rose-800">
-                  Dolu
-                </span>
                 <span
-                  className="grid size-4 shrink-0 place-items-center rounded-full text-[8px] font-semibold text-white"
+                  className="grid size-4 shrink-0 place-items-center rounded-full text-[8px] font-semibold text-white ring-2 ring-white/75"
                   style={{ backgroundColor: palette.solid }}
                 >
                   {initials(trimmed)}
                 </span>
-                <span className="truncate text-[11px] font-medium text-slate-700">{trimmed || 'Adın'}</span>
+                <span className="truncate text-[11px] font-medium" style={{ color: palette.text }}>
+                  {trimmed || 'Adın'}
+                </span>
               </span>
             </div>
             <p className="text-[12px] leading-relaxed text-slate-500">Diğerleri senin kartlarını böyle görecek.</p>

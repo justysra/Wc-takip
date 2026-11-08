@@ -1,14 +1,26 @@
 import { demoBackend } from './demoBackend'
 import { ensureSession, isSupabaseConfigured, supabase, supabaseHost, supabaseUrlError } from './supabase'
 
-const COLUMNS = 'slot_index, owner_name, owner_id, claimed_at'
+const BASE_COLUMNS = 'slot_index, owner_name, owner_id, claimed_at'
 const PROFILE_COLUMNS = 'id, display_name, hue, updated_at'
+
+// supabase/migrate-notes.sql çalıştırılmamışsa not sütunu yoktur; tablo yine de notsuz okunur.
+let COLUMNS = `${BASE_COLUMNS}, note`
+
+function isMissingNoteColumn(error) {
+  return (error?.code === '42703' || error?.code === 'PGRST204') && /note/.test(error.message ?? '')
+}
 
 const supabaseBackend = {
   ensureSession,
 
   async list() {
-    const { data, error } = await supabase.from('slots').select(COLUMNS)
+    let { data, error } = await supabase.from('slots').select(COLUMNS)
+    if (isMissingNoteColumn(error)) {
+      console.warn('[supabase] slots.note sütunu yok; notlar için supabase/migrate-notes.sql çalıştırılmalı.')
+      COLUMNS = BASE_COLUMNS
+      ;({ data, error } = await supabase.from('slots').select(COLUMNS))
+    }
     if (error) throw error
     return data ?? []
   },
@@ -105,6 +117,22 @@ const supabaseBackend = {
     if (error) return { ok: false, message: error.message }
     return { ok: true, count: data?.length ?? 0 }
   },
+
+  async updateNote(index, note) {
+    const user = await ensureSession()
+    const { data, error } = await supabase
+      .from('slots')
+      .update({ note })
+      .eq('slot_index', index)
+      .eq('owner_id', user.id)
+      .select(COLUMNS)
+    if (error) {
+      if (isMissingNoteColumn(error)) return { ok: false, reason: 'unsupported' }
+      return { ok: false, reason: 'error', message: error.message }
+    }
+    if (!data?.length) return { ok: false, reason: 'forbidden' }
+    return { ok: true, row: data[0] }
+  },
 }
 
 const demoRequested = import.meta.env.VITE_DEMO === 'true'
@@ -141,6 +169,7 @@ function unavailableBackend(error) {
     claim: fail('claim'),
     release: fail('release'),
     releaseAll: fail('releaseAll'),
+    updateNote: fail('updateNote'),
     subscribe() {
       console.error('[supabase] subscribe atlandı:', error.message)
       throw error

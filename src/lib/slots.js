@@ -56,20 +56,38 @@ export const COLOR_PRESETS = [
 ]
 
 export function defaultHue(key) {
-  return hashString(key) % 360
+  return COLOR_PRESETS[hashString(key) % COLOR_PRESETS.length].hue
 }
 
-/** Kimliğe (veya seçilmiş tona) göre açık zeminde okunan yumuşak bir palet üretir. */
+function wrapHue(hue) {
+  return ((hue % 360) + 360) % 360
+}
+
+/** Sarı-turuncuyu çamurdan, kırmızıyı bağırganlıktan uzak tutan oklch kroma. */
+function chromaFor(hue) {
+  const h = wrapHue(hue)
+  if (h >= 50 && h <= 95) return 0.1
+  if (h >= 18 && h < 50) return 0.088
+  if (h >= 330 || h < 18) return 0.078
+  return 0.07
+}
+
+/** Kimliğe (veya seçilmiş tona) göre açık zeminde okunan cam paleti üretir. */
 export function ownerPalette(key, preferredHue) {
-  const hue = Number.isFinite(preferredHue) ? preferredHue : defaultHue(key)
+  const hue = wrapHue(Number.isFinite(preferredHue) ? preferredHue : defaultHue(key))
+  const c = chromaFor(hue)
   return {
     hue,
-    text: `hsl(${hue} 32% 28%)`,
-    solid: `hsl(${hue} 42% 46%)`,
-    tint: `hsl(${hue} 45% 97%)`,
-    soft: `hsl(${hue} 40% 94%)`,
-    border: `hsl(${hue} 24% 84%)`,
-    ring: `hsl(${hue} 28% 62%)`,
+    text: `oklch(0.38 ${c * 0.8} ${hue})`,
+    solid: `oklch(0.52 ${Math.min(c + 0.055, 0.155)} ${hue})`,
+    tint: `oklch(0.97 ${c * 0.35} ${hue})`,
+    soft: `oklch(0.95 ${c * 0.48} ${hue})`,
+    fill: `oklch(0.935 ${c * 0.7} ${hue})`,
+    fillDeep: `oklch(0.86 ${c} ${hue})`,
+    fillBorder: `oklch(0.78 ${c * 0.65} ${hue} / 0.5)`,
+    sheen: `oklch(0.995 ${c * 0.22} ${hue} / 0.78)`,
+    border: `oklch(0.88 ${c * 0.38} ${hue})`,
+    ring: `oklch(0.68 ${c} ${hue})`,
     glow: '0 1px 2px rgb(15 23 42 / 0.05)',
     dotGlow: 'none',
   }

@@ -137,6 +137,15 @@ export const demoBackend = {
     localStorage.setItem(STORE_KEY, JSON.stringify(rows))
     return { ok: true }
   },
+
+  async updateNote(index, note) {
+    await wait()
+    const rows = read()
+    if (!rows[index] || rows[index].owner_id !== currentUserId()) return { ok: false, reason: 'forbidden' }
+    rows[index] = { ...rows[index], note }
+    localStorage.setItem(STORE_KEY, JSON.stringify(rows))
+    return { ok: true, row: rows[index] }
+  },
 }
 
 export function resetDemo() {
