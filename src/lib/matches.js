@@ -1,12 +1,14 @@
 import { slotStart } from './slots'
 
-/** Aynı işeme ritmine yakın sayılacak mesafe: ±30 dk (6 × 5 dk slot). */
-export const MATCH_WINDOW_SLOTS = 6
+/** Aynı işeme ritmine yakın sayılacak mesafe: ±15 dk (3 × 5 dk slot). */
+export const MATCH_WINDOW_SLOTS = 3
+
+/** Ekranda yalnızca en güçlü bu kadar eşleşme gösterilir. */
+export const TOP_MATCHES = 2
 
 /**
- * Senin kilitlediğin slotlara zamansal olarak yakın (≤30 dk) slotu olan
- * kişileri skorlayıp sıralar. Aynı slot iki kişiye ait olamaz; eşleşme
- * komşu / yakın saatler üzerinden kurulur.
+ * Senin kilitlediğin slotlara zamansal olarak yakın (≤15 dk) slotu olan
+ * kişileri skorlayıp yalnızca en iyi 2’yi döner.
  */
 export function computeMatches(slots, userId, ownerOf) {
   if (!userId || !slots?.size) return []
@@ -65,9 +67,9 @@ export function computeMatches(slots, userId, ownerOf) {
     })
   }
 
-  return results.sort(
-    (a, b) => b.score - a.score || b.percent - a.percent || a.name.localeCompare(b.name, 'tr'),
-  )
+  return results
+    .sort((a, b) => b.score - a.score || b.percent - a.percent || a.name.localeCompare(b.name, 'tr'))
+    .slice(0, TOP_MATCHES)
 }
 
 export function matchLabel(percent) {

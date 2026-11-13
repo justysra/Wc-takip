@@ -14,7 +14,7 @@ export default function Matches({ matches, mineCount, focusedId, onFocus }) {
   if (matches.length === 0) {
     return (
       <p className="text-[13px] text-slate-500">
-        Henüz ±30 dk içinde yakın bir saat yok. Başkaları senin dilimlerine yakın slot alınca match çıkar.
+        Henüz ±15 dk içinde yakın bir saat yok. Başkaları senin dilimlerine yakın slot alınca match çıkar.
       </p>
     )
   }

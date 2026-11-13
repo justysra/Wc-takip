@@ -393,12 +393,12 @@ function Board() {
           <div className="mb-1 flex items-baseline justify-between gap-3">
             <h2 className="text-[15px] font-semibold tracking-tight text-slate-900">Match’lerin</h2>
             {matches.length > 0 && (
-              <span className="font-mono text-[12px] tabular-nums text-slate-400">{matches.length} kişi</span>
+              <span className="font-mono text-[12px] tabular-nums text-slate-400">en iyi {matches.length}</span>
             )}
           </div>
           <p className="mb-3 text-[12.5px] leading-relaxed text-slate-500">
-            Senin kilitlediğin saatlere ±30 dk içinde slot alanlarla eşleşiyorsun. Birine dokununca
-            tabloda sadece onun slotları kalır.
+            Saatine en yakın 2 kişi. ±15 dk içinde slot alanlardan en güçlü eşleşmeler; birine
+            dokununca tabloda sadece onun slotları kalır.
           </p>
           <Matches matches={matches} mineCount={mineCount} focusedId={focusedId} onFocus={setFocusedId} />
         </section>
