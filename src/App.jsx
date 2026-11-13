@@ -2,6 +2,7 @@ import { Clock, Download, PartyPopper, RotateCcw, Settings, Shuffle, Toilet } fr
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import AccountModal from './components/AccountModal'
 import Contributors from './components/Contributors'
+import Matches from './components/Matches'
 import NoteModal from './components/NoteModal'
 import ProgressBar from './components/ProgressBar'
 import SetupNotice from './components/SetupNotice'
@@ -12,6 +13,7 @@ import { useToasts } from './hooks/useToasts'
 import { isDemo } from './lib/backend'
 import { downloadBoard } from './lib/exportBoard'
 import { fillDemoRandomly, resetDemo } from './lib/demoBackend'
+import { computeMatches } from './lib/matches'
 import {
   currentSlotIndex,
   defaultHue,
@@ -171,6 +173,10 @@ function Board() {
   }, [slots, ownerOf])
 
   const mineCount = contributors.find((c) => c.id === userId)?.count ?? 0
+  const matches = useMemo(
+    () => computeMatches(slots, userId, ownerOf),
+    [slots, userId, ownerOf],
+  )
   const filled = slots.size
   const myProfile = userId ? profiles.get(userId) : null
   const myHue = myProfile?.hue ?? (userId ? defaultHue(userId) : undefined)
@@ -381,6 +387,20 @@ function Board() {
             )}
           </div>
           <Contributors contributors={contributors} userId={userId} focusedId={focusedId} onFocus={setFocusedId} />
+        </section>
+
+        <section className="animate-fade-up mt-4 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm [animation-delay:170ms]">
+          <div className="mb-1 flex items-baseline justify-between gap-3">
+            <h2 className="text-[15px] font-semibold tracking-tight text-slate-900">Match’lerin</h2>
+            {matches.length > 0 && (
+              <span className="font-mono text-[12px] tabular-nums text-slate-400">{matches.length} kişi</span>
+            )}
+          </div>
+          <p className="mb-3 text-[12.5px] leading-relaxed text-slate-500">
+            Senin kilitlediğin saatlere ±30 dk içinde slot alanlarla eşleşiyorsun. Birine dokununca
+            tabloda sadece onun slotları kalır.
+          </p>
+          <Matches matches={matches} mineCount={mineCount} focusedId={focusedId} onFocus={setFocusedId} />
         </section>
 
         <section className="animate-fade-up mt-12 [animation-delay:200ms]">
