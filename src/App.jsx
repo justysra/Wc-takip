@@ -1,4 +1,4 @@
-import { PartyPopper, RotateCcw, Settings, Shuffle, Toilet } from 'lucide-react'
+import { Clock, Download, PartyPopper, RotateCcw, Settings, Shuffle, Toilet } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import AccountModal from './components/AccountModal'
 import Contributors from './components/Contributors'
@@ -10,6 +10,7 @@ import Toasts from './components/Toasts'
 import { useSlots } from './hooks/useSlots'
 import { useToasts } from './hooks/useToasts'
 import { isDemo } from './lib/backend'
+import { downloadBoard } from './lib/exportBoard'
 import { fillDemoRandomly, resetDemo } from './lib/demoBackend'
 import {
   currentSlotIndex,
@@ -264,6 +265,13 @@ function Board() {
     }
   }
 
+  function scrollToNow() {
+    if (!ready) return
+    const index = currentSlotIndex()
+    setNowIndex(index)
+    document.getElementById(`slot-${index}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
   function isDimmed(row) {
     if (focusedId && row?.owner_id !== focusedId) return true
     if (filter === 'empty') return Boolean(row)
@@ -295,6 +303,16 @@ function Board() {
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={scrollToNow}
+                disabled={!ready}
+                className="flex h-7 items-center gap-1.5 rounded-full bg-slate-900 px-2.5 text-[12px] font-medium text-white transition-all duration-200 hover:bg-slate-800 active:scale-95 disabled:opacity-40"
+                title="Şimdiki slota git"
+              >
+                <Clock size={13} />
+                Şimdi
+              </button>
               <StatusPill status={status} />
               {username && myPalette && (
                 <button
@@ -372,6 +390,18 @@ function Board() {
               <span className="font-mono text-[12px] text-slate-400 tabular-nums">00:00 – 24:00</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <GhostButton icon={Clock} onClick={scrollToNow}>
+                Şimdi
+              </GhostButton>
+              <GhostButton
+                icon={Download}
+                onClick={() => {
+                  if (!ready) return
+                  downloadBoard(slots, ownerOf).catch(() => push('error', 'Excel indirilemedi', 'Dosya oluşturulamadı.'))
+                }}
+              >
+                Excel
+              </GhostButton>
               {isDemo && (
                 <>
                   <GhostButton icon={Shuffle} onClick={fillDemoRandomly}>
@@ -442,6 +472,7 @@ function Board() {
                         return (
                           <SlotCard
                             key={i}
+                            id={`slot-${i}`}
                             index={i}
                             row={row}
                             ownerName={owner?.name}

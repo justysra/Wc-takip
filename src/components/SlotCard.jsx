@@ -6,6 +6,7 @@ const LONG_PRESS_MS = 450
 const MOVE_TOLERANCE_PX = 8
 
 export default function SlotCard({
+  id,
   index,
   row,
   ownerName,
@@ -70,7 +71,7 @@ export default function SlotCard({
   const note = row?.note?.trim()
 
   let cls =
-    'group relative flex h-[76px] w-full touch-manipulation flex-col justify-between overflow-hidden rounded-xl border px-2.5 py-2 text-left outline-none select-none transition-all duration-200 ease-out [-webkit-touch-callout:none] focus-visible:ring-2 focus-visible:ring-slate-300 active:scale-[0.98] disabled:cursor-wait'
+    'group relative flex h-[76px] w-full scroll-mt-28 touch-manipulation flex-col justify-between overflow-hidden rounded-xl border px-2.5 py-2 text-left outline-none select-none transition-all duration-200 ease-out [-webkit-touch-callout:none] focus-visible:ring-2 focus-visible:ring-slate-300 active:scale-[0.98] disabled:cursor-wait'
 
   if (!row) {
     cls += ' border-slate-200/70 bg-white/80 shadow-sm hover:border-slate-300 hover:bg-white'
@@ -85,6 +86,7 @@ export default function SlotCard({
   return (
     <button
       type="button"
+      id={id}
       onClick={handleClick}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
