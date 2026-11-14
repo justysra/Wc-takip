@@ -41,22 +41,19 @@ function hashString(value) {
 }
 
 export const COLOR_PRESETS = [
-  { hue: 245, label: 'İndigo' },
-  { hue: 275, label: 'Mor' },
-  { hue: 300, label: 'Eflatun' },
-  { hue: 330, label: 'Pembe' },
-  { hue: 355, label: 'Kırmızı' },
-  { hue: 22, label: 'Turuncu' },
-  { hue: 45, label: 'Kehribar' },
-  { hue: 80, label: 'Limon' },
-  { hue: 140, label: 'Yeşil' },
-  { hue: 170, label: 'Turkuaz' },
-  { hue: 192, label: 'Camgöbeği' },
-  { hue: 215, label: 'Mavi' },
+  { hue: 95, label: 'Altın' },
+  { hue: 54, label: 'Turuncu' },
+  { hue: 29, label: 'Kırmızı' },
+  { hue: 255, label: 'Mavi' },
+  { hue: 145, label: 'Yeşil' },
+  { hue: 350, label: 'Pembe' },
 ]
 
+/** Daha önce seçilmemiş renkler bu 12 tondan gelir; liste uzasa da kaymaz. */
+const DEFAULT_HUES = [245, 275, 300, 330, 355, 22, 45, 80, 140, 170, 192, 215]
+
 export function defaultHue(key) {
-  return COLOR_PRESETS[hashString(key) % COLOR_PRESETS.length].hue
+  return DEFAULT_HUES[hashString(key) % DEFAULT_HUES.length]
 }
 
 function wrapHue(hue) {
@@ -72,9 +69,38 @@ function chromaFor(hue) {
   return 0.07
 }
 
+/** Hazır rozetlerin doygun hali. Ara tonlar çubuktan seçilince normal cam paleti kalır. */
+const VIVID = {
+  95: { l: 0.78, c: 0.15, fillL: 0.95, fillC: 0.08 },
+  54: { l: 0.68, c: 0.19, fillL: 0.93, fillC: 0.09 },
+  29: { l: 0.55, c: 0.23, fillL: 0.92, fillC: 0.09 },
+  255: { l: 0.52, c: 0.16, fillL: 0.93, fillC: 0.06 },
+  145: { l: 0.55, c: 0.16, fillL: 0.93, fillC: 0.07 },
+  350: { l: 0.66, c: 0.16, fillL: 0.94, fillC: 0.06 },
+}
+
+function vividTone(hue) {
+  const v = VIVID[hue]
+  if (!v) return null
+  return {
+    text: `oklch(0.38 ${Math.min(v.c, 0.14)} ${hue})`,
+    solid: `oklch(${v.l} ${v.c} ${hue})`,
+    tint: `oklch(0.97 ${(v.fillC * 0.4).toFixed(3)} ${hue})`,
+    soft: `oklch(0.95 ${(v.fillC * 0.7).toFixed(3)} ${hue})`,
+    fill: `oklch(${v.fillL} ${v.fillC} ${hue})`,
+    fillDeep: `oklch(${(v.fillL - 0.08).toFixed(2)} ${(v.fillC + 0.04).toFixed(3)} ${hue})`,
+    fillBorder: `oklch(${(v.fillL - 0.16).toFixed(2)} ${(v.c * 0.7).toFixed(3)} ${hue} / 0.55)`,
+    sheen: `oklch(0.99 0.02 ${hue} / 0.8)`,
+    border: `oklch(${(v.fillL - 0.08).toFixed(2)} ${(v.fillC * 0.8).toFixed(3)} ${hue})`,
+    ring: `oklch(${v.l} ${v.c} ${hue})`,
+  }
+}
+
 /** Kimliğe (veya seçilmiş tona) göre açık zeminde okunan cam paleti üretir. */
 export function ownerPalette(key, preferredHue) {
   const hue = wrapHue(Number.isFinite(preferredHue) ? preferredHue : defaultHue(key))
+  const vivid = vividTone(hue)
+  if (vivid) return { hue, glow: '0 1px 2px rgb(15 23 42 / 0.05)', dotGlow: 'none', ...vivid }
   const c = chromaFor(hue)
   return {
     hue,

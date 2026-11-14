@@ -146,6 +146,7 @@ export default function AccountModal({
             <div className="grid grid-cols-6 gap-2">
               {COLOR_PRESETS.map((c) => {
                 const selected = hue === c.hue
+                const swatch = ownerPalette(userId ?? trimmed, c.hue)
                 return (
                   <button
                     key={c.hue}
@@ -155,11 +156,17 @@ export default function AccountModal({
                     aria-label={c.label}
                     aria-pressed={selected}
                     className={`grid aspect-square place-items-center rounded-full border transition-all duration-200 hover:scale-105 active:scale-95 ${
-                      selected ? 'scale-105 border-slate-900' : 'border-slate-200/80'
+                      selected ? 'scale-105 border-slate-900 ring-2 ring-slate-900/15' : 'border-white/70'
                     }`}
-                    style={{ backgroundColor: `hsl(${c.hue} 42% 46%)` }}
+                    style={{ backgroundColor: swatch.solid }}
                   >
-                    {selected && <Check size={14} strokeWidth={3} className="text-white" />}
+                    {selected && (
+                      <Check
+                        size={14}
+                        strokeWidth={3}
+                        className={c.hue === 95 || c.hue === 54 ? 'text-slate-900' : 'text-white'}
+                      />
+                    )}
                   </button>
                 )
               })}
